@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socrates IV — AI Agent Deployment for Founders & Exec Teams</title>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #000000;
+            --bg-card: #000000;
+            --text: #ffffff;
+            --text2: #a1a1aa;
+            --text3: rgba(255, 255, 255, 0.4);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-h: rgba(255, 255, 255, 0.15);
+            --max-w: 720px;
+            --font-en: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --font-cn: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            font-family: var(--font-en);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body.lang-cn {
+            font-family: var(--font-cn);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .wrap {
+            max-width: var(--max-w);
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        section {
+            padding: 140px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        section:last-of-type {
+            border-bottom: none;
+        }
+
+        /* Language Toggle */
+        .lang-switch {
+            position: fixed;
+            top: 20px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+            font-family: var(--font-en);
+            font-weight: 500;
+        }
+
+        .lang-switch span {
+            cursor: pointer;
+            color: var(--text3);
+            transition: color 0.3s;
+        }
+
+        .lang-switch span.active {
+            color: var(--text);
+            border-bottom: 1px solid var(--text);
+        }
+
+        /* Bilingual Display Logic — FULLY EXCLUSIVE */
+        /* Default: hide cn, show en */
+        [data-lang="cn"] {
+            display: none !important;
+        }
+
+        [data-lang="en"] {
+            display: block;
+        }
+
+        span[data-lang="en"],
+        a[data-lang="en"],
+        button[data-lang="en"] {
+            display: inline;
+        }
+
+        /* When body is lang-cn: hide en, show cn */
+        body.lang-cn [data-lang="en"] {
+            display: none !important;
+        }
+
+        body.lang-cn [data-lang="cn"] {
+            display: block !important;
+        }
+
+        body.lang-cn span[data-lang="cn"],
+        body.lang-cn a[data-lang="cn"],
+        body.lang-cn button[data-lang="cn"] {
+            display: inline !important;
+        }
+
+
+        .label {
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text2);
+            font-weight: 500;
+            margin-bottom: 24px;
+            display: block;
+            font-family: var(--font-en);
+        }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            line-height: 1.3;
+            color: var(--text);
+        }
+
+        .sub {
+            font-size: 16px;
+            color: var(--text3);
+            max-width: 500px;
+            margin: 0 auto 60px;
+            line-height: 1.6;
+        }
+
+        /* --- TOP PROMO BANNER --- */
+        .top-banner {
+            background: linear-gradient(90deg, #101018 0%, #1a1a2b 50%, #101018 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            padding: 14px 20px;
+            font-size: 14px;
+            line-height: 1;
+            position: relative;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            color: var(--text2);
+        }
+
+        .top-banner>span {
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .top-banner a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 14px;
+            line-height: 1;
+            transition: color 0.3s ease;
+        }
+
+        .top-banner a:hover {
+            color: #a0b0ff;
+        }
+
+        .top-banner svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .banner-badge {
+            background: rgba(60, 100, 255, 0.2);
+            color: #88aaff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            line-height: 1;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* HERO */
+        .hero {
+            position: relative;
+            padding: 120px 0 60px;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 60px;
+        }
+
+        .logo-mark {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #000000;
+            font-weight: 600;
+            font-family: var(--font-en);
+        }
+
+        .logo-text {
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            font-family: var(--font-en);
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 500;
+            line-height: 1.15;
+            margin-bottom: 24px;
+            letter-spacing: -0.03em;
+        }
+
+        .hero-desc {
+            font-size: 18px;
+            color: var(--text2);
+            line-height: 1.7;
+            margin-bottom: 48px;
+            max-width: 680px;
+        }
+
+        .hero-desc strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            background: #ffffff;
+            color: #000000;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: opacity 0.2s;
+            letter-spacing: -0.01em;
+            border: 1px solid #ffffff;
+            font-family: var(--font-en);
+        }
+
+        .cta-btn:hover {
+            opacity: 0.9;
+        }
+
+        .hero .cta-btn {
+            margin-bottom: 60px;
+        }
+
+        .quote-box {
+            border-left: 2px solid var(--border-h);
+            padding: 4px 0 4px 20px;
+            margin-bottom: 60px;
+        }
+
+        .quote-box p {
+            font-size: 15px;
+            color: var(--text2);
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .quote-box cite {
+            font-size: 12px;
+            color: var(--text3);
+            display: block;
+            margin-top: 12px;
+            font-style: normal;
+        }
+
+        /* GRIDS & CARDS */
+        .grid2,
+        .grid3 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 48px;
+        }
+
+        @media(min-width: 600px) {
+            .grid3 {
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+            }
+
+            .grid2 {
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+            }
+        }
+
+        .card {
+            background: transparent;
+        }
+
+        .card-icon {
+            color: var(--text);
+            margin-bottom: 20px;
+            width: 24px;
+            height: 24px;
+            opacity: 0.9;
+        }
+
+        .card h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .card p {
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        .tag-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        .tag {
+            font-size: 12px;
+            color: var(--text2);
+            border: 1px solid var(--border);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        /* STEPS */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .step {
+            display: flex;
+            gap: 24px;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border-h);
+            border-radius: 4px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-en);
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .step h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            margin-top: 4px;
+        }
+
+        .step p {
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        /* SKILLS */
+        .skill-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media(max-width: 500px) {
+            .skill-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .skill-item {
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .skill-item .name {
+            font-size: 14px;
+            font-family: var(--font-en);
+        }
+
+        .skill-item .cat {
+            font-size: 12px;
+            color: var(--text3);
+        }
+
+        /* TESTIMONIALS */
+        .test-grid {
+            display: grid;
+            gap: 32px;
+        }
+
+        .test-card {
+            padding: 40px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .test-card p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            color: var(--text);
+        }
+
+        .test-author {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .test-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--border-h);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .test-name {
+            font-size: 14px;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .test-role {
+            font-size: 12px;
+            color: var(--text3);
+        }
+
+        /* PRICING */
+        .price-card {
+            padding: 48px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .price-card:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .price-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+            gap: 24px;
+        }
+
+        .price-left {
+            flex: 1;
+        }
+
+        .price-left h3 {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .price-left .pdesc {
+            font-size: 14px;
+            color: var(--text2);
+        }
+
+        .price-amt {
+            font-size: 32px;
+            font-weight: 500;
+            font-family: var(--font-en);
+            white-space: nowrap;
+            flex-shrink: 0;
+            text-align: right;
+        }
+
+        .price-amt .yen {
+            font-size: 16px;
+            color: var(--text3);
+            margin-right: 4px;
+            font-weight: 400;
+        }
+
+        .price-amt .suffix {
+            font-size: 13px;
+            color: var(--text3);
+            margin-left: 6px;
+            font-weight: 400;
+            font-family: var(--font-cn);
+        }
+
+        .price-features {
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media(max-width: 600px) {
+            .price-features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .price-features li {
+            font-size: 14px;
+            color: var(--text2);
+            display: flex;
+            gap: 12px;
+        }
+
+        .price-features li::before {
+            content: '—';
+            color: var(--border-h);
+        }
+
+        /* FAQ */
+        #faq details {
+            border-top: 1px solid var(--border);
+            transition: background 0.3s ease;
+        }
+
+        #faq details:last-of-type {
+            border-bottom: 1px solid var(--border);
+        }
+
+        #faq details[open] {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        #faq summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 20px 48px 20px 0;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        #faq summary::-webkit-details-marker {
+            display: none;
+        }
+
+        #faq summary::marker {
+            display: none;
+        }
+
+        #faq summary::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            transition: transform 0.3s ease;
+        }
+
+        #faq details[open] summary::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        #faq summary:hover {
+            color: #a0b0ff;
+        }
+
+        #faq .ans {
+            padding: 0 0 24px 0;
+        }
+
+        #faq .ans p {
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.8;
+        }
+
+        /* CONTACT */
+        .contact-card {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 32px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-top: 40px;
+        }
+
+        @media(max-width: 600px) {
+            .contact-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        .contact-avatar {
+            font-family: var(--font-en);
+            width: 64px;
+            height: 64px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .contact-info .cn {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .contact-info .cd {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        /* FOOTER */
+        footer {
+            padding: 80px 0 60px;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 80px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            letter-spacing: 0.05em;
+            font-family: var(--font-en);
+        }
+
+        .footer-brand .mark {
+            width: 16px;
+            height: 16px;
+            background: var(--text);
+            border-radius: 2px;
+        }
+
+        .footer-desc {
+            font-size: 13px;
+            color: var(--text3);
+            line-height: 1.7;
+            max-width: 320px;
+        }
+
+        .footer-col h4 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .footer-col a {
+            display: block;
+            font-size: 13px;
+            color: var(--text2);
+            margin-bottom: 12px;
+        }
+
+        .footer-col a:hover {
+            color: var(--text);
+        }
+
+        .footer-bottom {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 11px;
+            color: var(--text3);
+            font-family: var(--font-en);
+        }
+
+        /* MOVIE CREDITS SIDE NAVIGATION */
+        .side-nav {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 100vh;
+            z-index: 100;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            background: linear-gradient(to left, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+        }
+
+        .scroll-track {
+            display: flex;
+            flex-direction: column;
+            animation: scrollCredits 50s linear infinite;
+            width: 100%;
+        }
+
+        .scroll-track:hover {
+            animation-play-state: paused;
+        }
+
+        .scroll-list {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding: 0 30px;
+        }
+
+        .scroll-list a {
+            pointer-events: auto;
+            color: var(--text3);
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            opacity: 0.4;
+            padding: 20px 0;
+        }
+
+        .scroll-list a:hover {
+            color: var(--text);
+            opacity: 1;
+            transform: translateX(-5px);
+        }
+
+        @keyframes scrollCredits {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(-50%);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .side-nav {
+                width: 140px;
+            }
+
+            .scroll-list {
+                padding: 0 20px;
+            }
+
+            .scroll-list a {
+                font-size: 11px;
+                padding: 15px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .side-nav {
+                width: 100px;
+            }
+
+            .scroll-list {
+                padding: 0 10px;
+            }
+
+            .scroll-list a {
+                font-size: 10px;
+                padding: 12px 0;
+            }
+        }
+
+        /* MARKETING FEATURES */
+        .marketing-section {
+            padding: 100px 0;
+            background: linear-gradient(180deg, #020202 0%, #06060a 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .marketing-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(60, 100, 255, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .marketing-headline {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 60px;
+            animation: fadeUp 1s ease-out forwards;
+        }
+
+        .marketing-headline h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #fff, #a0b0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .marketing-headline p {
+            font-size: 16px;
+            color: var(--text3);
+            line-height: 1.6;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            background: rgba(20, 20, 25, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 0.8s ease-out forwards;
+        }
+
+        .feature-item:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .feature-item:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .feature-item:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-10px);
+            border-color: rgba(60, 100, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(60, 100, 255, 0.05);
+        }
+
+        .feature-icon-wrap {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, rgba(60, 100, 255, 0.1), rgba(60, 100, 255, 0.02));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(60, 100, 255, 0.2);
+        }
+
+        .feature-icon-wrap i {
+            color: #88aaff;
+            width: 28px;
+            height: 28px;
+        }
+
+        .feature-item h3 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--text);
+            line-height: 1.4;
+            letter-spacing: 0.02em;
+        }
+
+        .feature-item p {
+            font-size: 14px;
+            color: var(--text3);
+            line-height: 1.6;
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body class="lang-cn">
+
+    <!-- TOP PROMO BANNER -->
+    <div class="top-banner" id="topBanner">
+        <span class="banner-badge" data-lang="en">LIMITED OFFER</span>
+        <span class="banner-badge" data-lang="cn">限时优惠</span>
+        <span data-lang="en">Enterprise Deployment customized packages starting from ¥68,888.</span>
+        <span data-lang="cn">Socrates IV 企业深度定制私有化方案，早鸟价 ￥68,888 起。</span>
+        <a href="#contact" data-lang="en">Contact Founder for Free Audit <i data-lucide="arrow-right"></i></a>
+        <a href="#contact" data-lang="cn">添加创始人微信获取免费业务诊断 <i data-lucide="arrow-right"></i></a>
+    </div>
+
+    <!-- MOVIE CREDITS SCROLLING NAV -->
+    <nav class="side-nav">
+        <div class="scroll-track">
+            <!-- List 1 -->
+            <div class="scroll-list">
+                <a href="#"><span data-lang="en">Home</span><span data-lang="cn">首页</span></a>
+                <a href="#problems"><span data-lang="en">Pain Points</span><span data-lang="cn">业务痛点</span></a>
+                <a href="#clients"><span data-lang="en">Clients</span><span data-lang="cn">目标客户</span></a>
+                <a href="#services"><span data-lang="en">Services</span><span data-lang="cn">核心服务</span></a>
+                <a href="#process"><span data-lang="en">How It Works</span><span data-lang="cn">服务流程</span></a>
+                <a href="#learning"><span data-lang="en">7-Day Path</span><span data-lang="cn">7 天学习</span></a>
+                <a href="#skills"><span data-lang="en">10 Skills</span><span data-lang="cn">核心发现</span></a>
+                <a href="#resources"><span data-lang="en">Resources</span><span data-lang="cn">扩展资源</span></a>
+                <a href="#testimonials"><span data-lang="en">Testimonials</span><span data-lang="cn">客户反馈</span></a>
+                <a href="#why-us"><span data-lang="en">Why Us</span><span data-lang="cn">核心优势</span></a>
+                <a href="#pricing"><span data-lang="en">Pricing</span><span data-lang="cn">定制方案</span></a>
+                <a href="#faq"><span data-lang="en">FAQ</span><span data-lang="cn">常见问题</span></a>
+                <a href="#contact"><span data-lang="en">Contact</span><span data-lang="cn">联系我们</span></a>
+            </div>
+            <!-- List 2 for infinite scroll -->
+            <div class="scroll-list" aria-hidden="true">
+                <a href="#"><span data-lang="en">Home</span><span data-lang="cn">首页</span></a>
+                <a href="#problems"><span data-lang="en">Pain Points</span><span data-lang="cn">业务痛点</span></a>
+                <a href="#clients"><span data-lang="en">Clients</span><span data-lang="cn">目标客户</span></a>
+                <a href="#services"><span data-lang="en">Services</span><span data-lang="cn">核心服务</span></a>
+                <a href="#process"><span data-lang="en">How It Works</span><span data-lang="cn">服务流程</span></a>
+                <a href="#learning"><span data-lang="en">7-Day Path</span><span data-lang="cn">7 天学习</span></a>
+                <a href="#skills"><span data-lang="en">10 Skills</span><span data-lang="cn">核心技能</span></a>
+                <a href="#resources"><span data-lang="en">Resources</span><span data-lang="cn">扩展资源</span></a>
+                <a href="#testimonials"><span data-lang="en">Testimonials</span><span data-lang="cn">客户反馈</span></a>
+                <a href="#why-us"><span data-lang="en">Why Us</span><span data-lang="cn">核心优势</span></a>
+                <a href="#pricing"><span data-lang="en">Pricing</span><span data-lang="cn">定制方案</span></a>
+                <a href="#faq"><span data-lang="en">FAQ</span><span data-lang="cn">常见问题</span></a>
+                <a href="#contact"><span data-lang="en">Contact</span><span data-lang="cn">联系我们</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="lang-switch">
+        <span onclick="setLang('en')" id="btn-en">EN</span>
+        <span onclick="setLang('cn')" id="btn-cn" class="active">中文</span>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="wrap">
+            <div class="logo-row">
+                <div class="logo-mark">IV</div>
+                <span class="logo-text" data-lang="en">Socrates IV</span>
+                <span class="logo-text" data-lang="cn">苏格拉底第四号门徒</span>
+            </div>
+
+            <h1 data-lang="en">White-Glove AI Agent Deployment for Chinese Enterprises.</h1>
+            <h1 data-lang="cn">为企业量身打造 AI Agent 落地方案，一步到位。</h1>
+
+            <p class="hero-desc" data-lang="en">Deep consulting + Custom Skills + Team empowerment. We go beyond tool
+                installation to answer: <strong>"Which workflows need AI, how to use it, and how to use it
+                    best?"</strong> Exclusive for high-net-worth founders and elite teams.</p>
+            <p class="hero-desc" data-lang="cn">深度业务诊断 + 专属 Skills 定制 + 全员实战培训 —— 我们不卖工具，只交付结果。帮你精准回答<strong>「企业哪些环节该用
+                    AI、怎么用、怎么用好」</strong>这个核心命题。专注服务高净值企业主与精英决策者，全流程深度陪跑。</p>
+
+            <a href="#contact" class="cta-btn">
+                <span data-lang="en">Contact via WeChat / Book a Call →</span>
+                <span data-lang="cn">添加微信 / 预约免费诊断 →</span>
+            </a>
+
+            <div class="quote-box">
+                <p data-lang="en">"True value isn't merely installing an AI; it's seamlessly weaving it into every
+                    crucial facet of your operations."</p>
+                <p data-lang="cn">"真正的价值不是安装一个 AI 工具，而是让 AI 像水电一样融入企业的每一个经营环节。"</p>
+                <cite>Socrates IV</cite>
+            </div>
+        </div>
+    </section>
+
+    <!-- MARKETING FEATURES (New Interstitial) -->
+    <section class="marketing-section" id="marketing-features">
+        <div class="wrap">
+            <div class="marketing-headline">
+                <span class="label" data-lang="en">Your Digital Twin</span>
+                <span class="label" data-lang="cn">你的数字化业务分身</span>
+                <h2 data-lang="en">More Than Just a Chatbot</h2>
+                <h2 data-lang="cn">不止于聊天机器人</h2>
+                <p data-lang="en">Stop buying tools that gather dust. OpenClaw deeply integrates into your workflows,
+                    turning manual labor into automated pipelines. It's the "hands and feet" of your business, not just
+                    a "mouth".</p>
+                <p data-lang="cn">别再为闲置的 SaaS 工具付费。OpenClaw 深层接入您的业务流，将重复劳动转化为自动化流水线。它是您业务真正的「手和脚」，而不仅仅是一张只会聊天的「嘴」。</p>
+            </div>
+
+            <div class="feature-grid">
+                <!-- Feature 1 -->
+                <div class="feature-item">
+                    <div class="feature-icon-wrap">
+                        <i data-lucide="zap"></i>
+                    </div>
+                    <h3 data-lang="en">10x Efficiency Pipeline</h3>
+                    <h3 data-lang="cn">十倍效能流水线</h3>
+                    <p data-lang="en">Replace manual copy-pasting for social media monitoring, financial reports, and
+                        customer inquiries. Let 1 employee output the work of 10.</p>
+                    <p data-lang="cn">彻底告别社媒监控、财务初审和售后询盘的手工作业。让 1 名员工轻松产出 10 人的工作量。</p>
+                </div>
+                <!-- Feature 2 -->
+                <div class="feature-item">
+                    <div class="feature-icon-wrap">
+                        <i data-lucide="target"></i>
+                    </div>
+                    <h3 data-lang="en">Intent-Driven Automation</h3>
+                    <h3 data-lang="cn">意图驱动自动化</h3>
+                    <p data-lang="en">It doesn't just answer—it reacts. Triggers localized marketing reach-outs based on
+                        real user behavior within your CRM.</p>
+                    <p data-lang="cn">不仅能被动回答，更能主动响应。基于 CRM 中的用户真实行为轨迹，自动触发定制化的营销跟进动作。</p>
+                </div>
+                <!-- Feature 3 -->
+                <div class="feature-item">
+                    <div class="feature-icon-wrap">
+                        <i data-lucide="shield-check"></i>
+                    </div>
+                    <h3 data-lang="en">Absolute Data Privacy</h3>
+                    <h3 data-lang="cn">极致数据安全</h3>
+                    <p data-lang="en">Say goodbye to public cloud leaks. Your enterprise logic and core data run in
+                        local, air-gapped sandboxes with human-in-the-loop safety nets.</p>
+                    <p data-lang="cn">告别公网泄露风险。您的核心业务数据完全运行在本地物理隔离沙箱中，结合人工确认机制，确保万无一失。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAIN POINTS -->
+    <section id="problems">
+        <div class="wrap">
+            <span class="label" data-lang="en">Why You Need Us</span>
+            <span class="label" data-lang="cn">您可能正在面对这些困境</span>
+            <h2 data-lang="en">Why Enterprise AI Transformations Fail</h2>
+            <h2 data-lang="cn">为什么 90% 的企业 AI 转型都在踩坑？</h2>
+            <p class="sub" data-lang="en">Off-the-shelf tools simply don't map to native business logic.</p>
+            <p class="sub" data-lang="cn">标准化产品无法适配复杂的原生业务逻辑，而“买工具”和“用好 AI”之间差的是一套完整的落地方法论。</p>
+
+            <div class="grid3">
+                <div class="card">
+                    <i data-lucide="package-open" class="card-icon"></i>
+                    <h3 data-lang="en">Cannot Use Pre-packaged Solutions</h3>
+                    <h3 data-lang="cn">通用方案永远无法匹配你的业务</h3>
+                    <p data-lang="en">Standard solutions force your team to change habits. We map AI to your exact
+                        workflow.</p>
+                    <p data-lang="cn">市面上的标准化产品要求你改变业务习惯去迁就工具——而企业真正需要的，是让 AI 来适配你的流程。</p>
+                </div>
+                <div class="card">
+                    <i data-lucide="shield-alert" class="card-icon"></i>
+                    <h3 data-lang="en">Data Privacy Concerns</h3>
+                    <h3 data-lang="cn">数据安全是不可讨价还价的底线</h3>
+                    <p data-lang="en">Public models expose financial data. You need air-gapped models and private
+                        servers.</p>
+                    <p data-lang="cn">财务报表、简历库、客户名单——核心数据绝不能交给公有云大模型。你需要的是私有化部署与物理隔离。</p>
+                </div>
+                <div class="card">
+                    <i data-lucide="frown" class="card-icon"></i>
+                    <h3 data-lang="en">Low Adoption Rate</h3>
+                    <h3 data-lang="cn">买了账号却用不起来，投资打水漂</h3>
+                    <p data-lang="en">Buying ChatGPT Plus accounts for employees doesn't magically create prompt
+                        engineers.</p>
+                    <p data-lang="cn">给员工采购 AI 账号只是第一步。没有体系化的培训和工作流设计，AI 工具的投资回报率接近于零。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TARGET CLIENTS -->
+    <section id="clients">
+        <div class="wrap">
+            <span class="label" data-lang="en">Who We Serve</span>
+            <span class="label" data-lang="cn">我们服务的客户画像</span>
+            <h2 data-lang="en">Target Client Profile</h2>
+            <h2 data-lang="cn">专注高净值企业与精英团队</h2>
+
+            <div class="grid2">
+                <div class="card">
+                    <i data-lucide="briefcase" class="card-icon"></i>
+                    <h3 data-lang="en">E-Commerce & Retail</h3>
+                    <h3 data-lang="cn">跨境电商与零售品牌</h3>
+                    <p data-lang="en">Automated customer service, localized listing generation, and auto-responders.</p>
+                    <p data-lang="cn">针对跨时区客服响应、多语言产品 Listing 自动生成进行端到端优化。</p>
+                </div>
+                <div class="card">
+                    <i data-lucide="users" class="card-icon"></i>
+                    <h3 data-lang="en">Recruiting & HR</h3>
+                    <h3 data-lang="cn">招聘与猎头机构</h3>
+                    <p data-lang="en">Semantic resume screening, initial outreach automation via agentic workflows.</p>
+                    <p data-lang="cn">通过智能 Agent 实现海量简历语义初筛，以及自动化的候选人意向沟通。</p>
+                </div>
+                <div class="card">
+                    <i data-lucide="graduation-cap" class="card-icon"></i>
+                    <h3 data-lang="en">Training & Education</h3>
+                    <h3 data-lang="cn">教育与培训机构</h3>
+                    <p data-lang="en">Course material generation and automated student progress tracking feedback loops.
+                    </p>
+                    <p data-lang="cn">建立教案库自动生成和学员反馈追踪循环，将核心教研压力减轻 80%。</p>
+                </div>
+                <div class="card">
+                    <i data-lucide="trending-up" class="card-icon"></i>
+                    <h3 data-lang="en">Finance & Investment</h3>
+                    <h3 data-lang="cn">私募与金融机构</h3>
+                    <p data-lang="en">Automated data aggregation from complex earnings reports and news feeds.</p>
+                    <p data-lang="cn">全自动财报信息提取、宏观研报摘要分析，以及资讯高并发筛选系统。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services">
+        <div class="wrap">
+            <span class="label" data-lang="en">What We Do</span>
+            <span class="label" data-lang="cn">四大核心服务模块</span>
+            <h2 data-lang="en">Core Offerings</h2>
+            <h2 data-lang="cn">从诊断到交付，端到端的 AI Agent 落地方案</h2>
+
+            <div class="grid2">
+                <div class="card">
+                    <i data-lucide="search" class="card-icon"></i>
+                    <h3 data-lang="en">Deep Business Consulting</h3>
+                    <h3 data-lang="cn">深度业务诊断</h3>
+                    <p data-lang="en">Deconstruct your business workflows. Analyze AI fit for each step. Deliver a
+                        tailored AI Agent Implementation Report.</p>
+                    <p data-lang="cn">拆解您的业务全流程，逐环节分析 AI 适配性，输出专属的《AI Agent 落地诊断报告》，明确 ROI 与优先级。</p>
+                    <div class="tag-row"><span class="tag" data-lang="en">Workflow Analysis</span><span class="tag"
+                            data-lang="en">ROI Forecast</span><span class="tag" data-lang="cn">业务流程分析</span><span
+                            class="tag" data-lang="cn">ROI 预测</span></div>
+                </div>
+                <div class="card">
+                    <i data-lucide="settings" class="card-icon"></i>
+                    <h3 data-lang="en">Custom Skills Development</h3>
+                    <h3 data-lang="cn">专属 Skills 定制开发</h3>
+                    <p data-lang="en">Curate optimal Skills from 17,600+ ClawHub marketplace and develop bespoke
+                        workflows for your exact needs.</p>
+                    <p data-lang="cn">从 ClawHub 17,600+ 技能生态中精选最佳组合，并为您的业务场景量身开发专属工作流。</p>
+                    <div class="tag-row"><span class="tag" data-lang="en">Skills Customization</span><span class="tag"
+                            data-lang="en">Integration</span><span class="tag" data-lang="cn">Skills 定制</span><span
+                            class="tag" data-lang="cn">集成对接</span></div>
+                </div>
+                <div class="card">
+                    <i data-lucide="shield" class="card-icon"></i>
+                    <h3 data-lang="en">Deployment & Security</h3>
+                    <h3 data-lang="cn">私有化部署 & 安全加固</h3>
+                    <p data-lang="en">VPS / Mac Mini / private deployment. Composio OAuth middleware, Docker sandbox,
+                        firewall hardening.</p>
+                    <p data-lang="cn">支持 VPS / Mac Mini / 云服务器多种部署模式，搭配 Composio OAuth 中间件、Docker 沙箱、防火墙加固，确保合规安全。</p>
+                    <div class="tag-row"><span class="tag" data-lang="en">Docker Sandbox</span><span class="tag"
+                            data-lang="en">Private Deploy</span><span class="tag" data-lang="cn">Docker 沙箱</span><span
+                            class="tag" data-lang="cn">私有化部署</span></div>
+                </div>
+                <div class="card">
+                    <i data-lucide="book-open" class="card-icon"></i>
+                    <h3 data-lang="en">Training & Empowerment</h3>
+                    <h3 data-lang="cn">全员培训 & 持续赋能</h3>
+                    <p data-lang="en">Full-team AI Agent training. Continuous optimization and iteration to guarantee
+                        long-term ROI.</p>
+                    <p data-lang="cn">面向全团队的 AI Agent 实战培训，确保每个人都能高效上手。配合持续优化迭代，保障长期投资回报。</p>
+                    <div class="tag-row"><span class="tag" data-lang="en">Team Training</span><span class="tag"
+                            data-lang="en">Ongoing Support</span><span class="tag" data-lang="cn">团队培训</span><span
+                            class="tag" data-lang="cn">持续优化</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="process">
+        <div class="wrap">
+            <span class="label" data-lang="en">How It Works</span>
+            <span class="label" data-lang="cn">服务流程</span>
+            <h2 data-lang="en">Deployment Protocol</h2>
+            <h2 data-lang="cn">5 步完成 AI Agent 落地</h2>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">01</div>
+                    <div>
+                        <h3 data-lang="en">Free Consultation</h3>
+                        <h3 data-lang="cn">预约免费咨询</h3>
+                        <p data-lang="en">30-minute call to understand your business scenarios and pain points.</p>
+                        <p data-lang="cn">30 分钟电话/视频沟通，了解你的业务场景和痛点</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">02</div>
+                    <div>
+                        <h3 data-lang="en">Business Diagnosis</h3>
+                        <h3 data-lang="cn">业务诊断</h3>
+                        <p data-lang="en">Deep-dive into your workflows, identify optimal AI Agent integration points.
+                        </p>
+                        <p data-lang="cn">深入调研你的业务流程，识别 AI Agent 最佳切入点</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">03</div>
+                    <div>
+                        <h3 data-lang="en">Solution Architecture</h3>
+                        <h3 data-lang="cn">方案设计</h3>
+                        <p data-lang="en">Deliver the AI Agent Implementation Report with Skills blueprint and ROI
+                            projections.</p>
+                        <p data-lang="cn">输出《AI Agent 落地诊断报告》，包含 Skills 方案和 ROI 预测</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">04</div>
+                    <div>
+                        <h3 data-lang="en">Development & Deploy</h3>
+                        <h3 data-lang="cn">开发部署</h3>
+                        <p data-lang="en">Custom Skills development, security hardening, system integration.</p>
+                        <p data-lang="cn">定制 Skills 开发、安全加固部署、系统集成</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">05</div>
+                    <div>
+                        <h3 data-lang="en">Training & Launch</h3>
+                        <h3 data-lang="cn">培训上线</h3>
+                        <p data-lang="en">Team training + trial run + continuous optimization iteration.</p>
+                        <p data-lang="cn">团队培训 + 试运行 + 持续优化迭代</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7-DAY LEARNING PATH -->
+    <section id="learning">
+        <div class="wrap">
+            <span class="label">OPENCLAW 101</span>
+            <h2 data-lang="en">7-Day Bootcamp</h2>
+            <h2 data-lang="cn">7 天学习路径</h2>
+            <p class="sub" data-lang="en">A systematic beginner's guide based on the open-source openclaw101 project.
+                Build your AI assistant from scratch.</p>
+            <p class="sub" data-lang="cn">基于开源项目 openclaw101 整理的系统化入门指南，从零开始掌握 AI 私人助手</p>
+
+            <div class="grid2">
+                <div class="card"><i data-lucide="paw-print" class="card-icon"></i>
+                    <h3 data-lang="en">Day 1 · Meet OpenClaw</h3>
+                    <h3 data-lang="cn">Day 1 · 初识 OpenClaw</h3>
+                    <p data-lang="en">AI assistant vs chatbot fundamentals. OpenClaw's six core capabilities and why now
+                        is the best time to start.</p>
+                    <p data-lang="cn">AI 助手 vs 聊天机器人的本质区别，OpenClaw 六大核心能力，为什么现在是最好的开始时机</p>
+                </div>
+                <div class="card"><i data-lucide="zap" class="card-icon"></i>
+                    <h3 data-lang="en">Day 2 · 10-Min Setup</h3>
+                    <h3 data-lang="cn">Day 2 · 10 分钟搭建你的助手</h3>
+                    <p data-lang="en">Install OpenClaw with one command, connect Telegram, send your first message.</p>
+                    <p data-lang="cn">一行命令安装 OpenClaw，连接 Telegram，发出你的第一句话</p>
+                </div>
+                <div class="card"><i data-lucide="heart" class="card-icon"></i>
+                    <h3 data-lang="en">Day 3 · Give It a Soul</h3>
+                    <h3 data-lang="cn">Day 3 · 给助手一个灵魂</h3>
+                    <p data-lang="en">The holy trinity: SOUL.md / USER.md / AGENTS.md. Transform generic AI into YOUR
+                        AI.</p>
+                    <p data-lang="cn">灵魂三件套：SOUL.md / USER.md / AGENTS.md，让助手从通用 AI 变成你的 AI</p>
+                </div>
+                <div class="card"><i data-lucide="plug" class="card-icon"></i>
+                    <h3 data-lang="en">Day 4 · Connect Your Life</h3>
+                    <h3 data-lang="cn">Day 4 · 接入你的数字生活</h3>
+                    <p data-lang="en">Integrate Gmail, Calendar, Search, and Browser. From "can talk" to "can act".</p>
+                    <p data-lang="cn">连接 Gmail、Google Calendar、搜索引擎和浏览器，从「能说话」到「能办事」</p>
+                </div>
+                <div class="card"><i data-lucide="puzzle" class="card-icon"></i>
+                    <h3 data-lang="en">Day 5 · Unlock Skill Tree</h3>
+                    <h3 data-lang="cn">Day 5 · 解锁技能树</h3>
+                    <p data-lang="en">Explore ClawHub marketplace, install useful Skills, master multi-skill combos.</p>
+                    <p data-lang="cn">探索 ClawHub 技能市场，安装实用 Skills，学会多技能组合完成复杂任务</p>
+                </div>
+                <div class="card"><i data-lucide="activity" class="card-icon"></i>
+                    <h3 data-lang="en">Day 6 · Proactive Agent</h3>
+                    <h3 data-lang="cn">Day 6 · 让助手主动工作</h3>
+                    <p data-lang="en">Heartbeat mechanism + Cron scheduling + 3-layer memory. From reactive to
+                        proactive.</p>
+                    <p data-lang="cn">心跳机制 + Cron 定时任务 + 三层记忆系统，从被动应答到主动管家</p>
+                </div>
+                <div class="card"><i data-lucide="rocket" class="card-icon"></i>
+                    <h3 data-lang="en">Day 7 · Advanced & Beyond</h3>
+                    <h3 data-lang="cn">Day 7 · 进阶玩法 & 未来展望</h3>
+                    <p data-lang="en">Custom Skill development, multi-device Nodes, security checklist, community
+                        resources.</p>
+                    <p data-lang="cn">自定义 Skill 开发、多设备 Nodes 协作、安全清单、社区资源</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TOP 10 SKILLS -->
+    <section id="skills">
+        <div class="wrap">
+            <span class="label" data-lang="en">Recommended Skills</span>
+            <span class="label" data-lang="cn">最实用的核心技能</span>
+            <h2 data-lang="en">Top 10 High-ROI Skills</h2>
+            <h2 data-lang="cn">10 个最实用的 Skills</h2>
+            <p class="sub" data-lang="en">Curated from 17,600+ skills, ranked by immediate business value for beginners.
+            </p>
+            <p class="sub" data-lang="cn">按「小白上手收益」排序的技能清单，来自 17,600+ 技能库</p>
+
+            <div class="skill-grid">
+                <div class="skill-item"><span class="name">remind-me</span><span class="cat"><span
+                            data-lang="en">Essential</span><span data-lang="cn">必装</span></span></div>
+                <div class="skill-item"><span class="name">todo-tracker</span><span class="cat"><span
+                            data-lang="en">Essential</span><span data-lang="cn">必装</span></span></div>
+                <div class="skill-item"><span class="name">Gmail / imap-email</span><span class="cat"><span
+                            data-lang="en">Essential</span><span data-lang="cn">必装</span></span></div>
+                <div class="skill-item"><span class="name">Web Search</span><span class="cat"><span
+                            data-lang="en">Essential</span><span data-lang="cn">必装</span></span></div>
+                <div class="skill-item"><span class="name">Browser</span><span class="cat"><span
+                            data-lang="en">Recommended</span><span data-lang="cn">推荐</span></span></div>
+                <div class="skill-item"><span class="name">weather</span><span class="cat"><span
+                            data-lang="en">Recommended</span><span data-lang="cn">推荐</span></span></div>
+                <div class="skill-item"><span class="name">newsletter-digest</span><span class="cat"><span
+                            data-lang="en">Recommended</span><span data-lang="cn">推荐</span></span></div>
+                <div class="skill-item"><span class="name">GitHub</span><span class="cat"><span
+                            data-lang="en">Nice-to-have</span><span data-lang="cn">锦上添花</span></span></div>
+                <div class="skill-item"><span class="name">GSC / GA4</span><span class="cat"><span
+                            data-lang="en">Nice-to-have</span><span data-lang="cn">锦上添花</span></span></div>
+                <div class="skill-item"><span class="name">PDF Parser</span><span class="cat"><span
+                            data-lang="en">Nice-to-have</span><span data-lang="cn">锦上添花</span></span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RESOURCES -->
+    <section id="resources">
+        <div class="wrap">
+            <span class="label" data-lang="en">Resources</span>
+            <span class="label" data-lang="cn">学习资源聚合</span>
+            <h2 data-lang="en">Global Knowledge Base</h2>
+            <h2 data-lang="cn">资源聚合</h2>
+            <p class="sub" data-lang="en">Curated tutorials, deep-dives, and tools for mastering OpenClaw — in Chinese
+                and English.</p>
+            <p class="sub" data-lang="cn">精选中英文教程、深度文章、视频和工具，助你快速上手 OpenClaw</p>
+
+            <div
+                style="display:flex; gap:16px; margin-bottom:32px; border-bottom:1px solid var(--border); padding-bottom:12px;">
+                <button class="res-tab active" onclick="showResTab('cn',this)"
+                    style="font-size:13px; color:var(--text); cursor:pointer; background:transparent; border:none; border-bottom:1px solid var(--text); padding-bottom:11px; margin-bottom:-13px;">
+                    <span data-lang="en">Chinese Resources</span><span data-lang="cn">中文资源</span>
+                </button>
+                <button class="res-tab" onclick="showResTab('en',this)"
+                    style="font-size:13px; color:var(--text3); cursor:pointer; background:transparent; border:none; border-bottom:1px solid transparent; padding-bottom:11px; margin-bottom:-13px;">
+                    <span data-lang="en">English Resources</span><span data-lang="cn">国际资源</span>
+                </button>
+            </div>
+
+            <div id="res-cn" class="grid2" style="gap:12px;">
+                <a href="https://docs.openclaw.ai" target="_blank" class="skill-item"
+                    style="text-decoration:none;"><span class="name" style="font-size:13px;">OpenClaw 官方文档</span><span
+                        class="cat">OpenClaw</span></a>
+                <a href="https://github.com/openclaw/openclaw" target="_blank" class="skill-item"
+                    style="text-decoration:none;"><span class="name" style="font-size:13px;">GitHub 源码 (279k+
+                        ⭐)</span><span class="cat">GitHub</span></a>
+                <a href="https://clawhub.com" target="_blank" class="skill-item" style="text-decoration:none;"><span
+                        class="name" style="font-size:13px;">ClawHub 技能市场</span><span class="cat">ClawHub</span></a>
+                <a href="https://my.feishu.cn/wiki/YkWgwqSchi9xW3kEuZscAm0lnFf" target="_blank" class="skill-item"
+                    style="text-decoration:none;"><span class="name" style="font-size:13px;">OpenClaw 7天入门指南</span><span
+                        class="cat">飞书</span></a>
+                <a href="https://help.aliyun.com/zh/simple-application-server/use-cases/quickly-deploy-and-use-openclaw"
+                    target="_blank" class="skill-item" style="text-decoration:none;"><span class="name"
+                        style="font-size:13px;">阿里云 — 部署 OpenClaw</span><span class="cat">阿里云</span></a>
+                <a href="https://cloud.tencent.com/developer/article/2625073" target="_blank" class="skill-item"
+                    style="text-decoration:none;"><span class="name" style="font-size:13px;">腾讯云 — 接入飞书教程</span><span
+                        class="cat">腾讯云</span></a>
+                <a href="https://aws.amazon.com/cn/blogs/china/openclaw-deployment-aws-mac/" target="_blank"
+                    class="skill-item" style="text-decoration:none;"><span class="name" style="font-size:13px;">AWS —
+                        Mac 实例部署</span><span class="cat">AWS</span></a>
+                <a href="https://www.runoob.com/ai-agent/openclaw-clawdbot-tutorial.html" target="_blank"
+                    class="skill-item" style="text-decoration:none;"><span class="name" style="font-size:13px;">菜鸟教程 —
+                        完整教程</span><span class="cat">菜鸟教程</span></a>
+                <a href="https://zhuanlan.zhihu.com/p/2000850539936765122" target="_blank" class="skill-item"
+                    style="text-decoration:none;"><span class="name" style="font-size:13px;">知乎 — 一文读懂
+                        OpenClaw</span><span class="cat">知乎</span></a>
+                <a href="https://www.feishu.cn/content/article/7602519239445974205" target="_blank" class="skill-item"
+                    style="text-decoration:none;"><span class="name" style="font-size:13px;">飞书 — 完全搞懂 Clawd
+                        Bot</span><span class="cat">飞书</span></a>
+                <a href="https://www.bilibili.com/video/BV1kH6nBFEPq/" target="_blank" class="skill-item"
+                    style="text-decoration:none;"><span class="name" style="font-size:13px;">B站 — 海量全玩法攻略</span><span
+                        class="cat">Bilibili</span></a>
+                <a href="https://juejin.cn/post/7600752623068102666" target="_blank" class="skill-item"
+                    style="text-decoration:none;"><span class="name" style="font-size:13px;">掘金 — 从 0 搭建完整记录</span><span
+                        class="cat">掘金</span></a>
+                <a href="https://blog.csdn.net/liwang0113/article/details/157579187" target="_blank" class="skill-item"
+                    style="text-decoration:none;"><span class="name" style="font-size:13px;">CSDN — 保姆级安装配置</span><span
+                        class="cat">CSDN</span></a>
+            </div>
+            <div id="res-en" class="grid2" style="gap:12px; display:none;">
+                <a href="https://www.ibm.com/think/news/clawdbot-ai-agent-testing-limits-vertical-integration"
+                    target="_blank" class="skill-item" style="text-decoration:none;"><span class="name"
+                        style="font-size:13px;">IBM Think — The Viral Agent</span><span class="cat">IBM</span></a>
+                <a href="https://www.scientificamerican.com/article/moltbot-is-an-open-source-ai-agent-that-runs-your-computer/"
+                    target="_blank" class="skill-item" style="text-decoration:none;"><span class="name"
+                        style="font-size:13px;">AI Agent That Runs Your PC</span><span class="cat">Scientific
+                        American</span></a>
+                <a href="https://www.theverge.com/news/872091/openclaw-moltbot-clawdbot-ai-agent-news" target="_blank"
+                    class="skill-item" style="text-decoration:none;"><span class="name" style="font-size:13px;">All The
+                        News</span><span class="cat">The Verge</span></a>
+                <a href="https://blogs.cisco.com/ai/personal-ai-agents-like-openclaw-are-a-security-nightmare"
+                    target="_blank" class="skill-item" style="text-decoration:none;"><span class="name"
+                        style="font-size:13px;">Security Analysis</span><span class="cat">Cisco</span></a>
+                <a href="https://www.cnbc.com/2026/02/02/openclaw-open-source-ai-agent-rise-controversy-clawdbot-moltbot-moltbook.html"
+                    target="_blank" class="skill-item" style="text-decoration:none;"><span class="name"
+                        style="font-size:13px;">From Clawdbot to OpenClaw</span><span class="cat">CNBC</span></a>
+                <a href="https://www.datacamp.com/tutorial/moltbot-clawdbot-tutorial" target="_blank" class="skill-item"
+                    style="text-decoration:none;"><span class="name" style="font-size:13px;">Control PC from
+                        WhatsApp</span><span class="cat">DataCamp</span></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section id="testimonials">
+        <div class="wrap">
+            <span class="label" data-lang="en">Client Success</span>
+            <span class="label" data-lang="cn">客户实证</span>
+            <h2 data-lang="en">What They Say</h2>
+            <h2 data-lang="cn">他们怎么说</h2>
+            <p class="sub" data-lang="en">From automating tasks to unlocking new revenue streams.</p>
+            <p class="sub" data-lang="cn">从自动化繁琐操作，到解锁全新的降本增效模式——听听已落地客户的真实反馈。</p>
+
+            <div class="test-grid">
+                <div class="test-card">
+                    <p data-lang="en">"They helped map out our entire cross-border e-commerce workflow. AI now handles
+                        200+ customer queries and tracks stock autonomously."</p>
+                    <p data-lang="cn">"他们帮我们梳理了整个跨境电商的客服和订单流程。现在 AI 自动处理 200+ 客户咨询和库存追踪响应，节省了三个全职人力。"</p>
+                    <div class="test-author">
+                        <div class="test-avatar">EC</div>
+                        <div>
+                            <span class="test-name" data-lang="en">E-Commerce Biz Lead</span>
+                            <span class="test-name" data-lang="cn">跨境电商运营负责人</span>
+                            <span class="test-role">Cross-border E-commerce</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="test-card">
+                    <p data-lang="en">"Sourcing and filtering candidates visually with an AI agent. It automated our
+                        initial outreach process and saved 80% screening time."</p>
+                    <p data-lang="cn">"猎头行业的看简历和筛选沟通极为繁琐。Agent 帮助我们自动完成简历初筛和初步意向跟进，将我们的筛选筛选时间砍掉了 80%。"</p>
+                    <div class="test-author">
+                        <div class="test-avatar">HR</div>
+                        <div>
+                            <span class="test-name" data-lang="en">Senior Partner</span>
+                            <span class="test-name" data-lang="cn">资深猎头合伙人</span>
+                            <span class="test-role">Headhunting Firm</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="test-card">
+                    <p data-lang="en">"I need to stay on top of market data and news. My AI assistant auto-summarizes
+                        earnings reports and industry briefings daily."</p>
+                    <p data-lang="cn">"作为基金经理，我需要极高密度地获取市场信息。我的私人 AI 助理每天为我提取财报核心数据和投资简报，让我专注于决策本身。"</p>
+                    <div class="test-author">
+                        <div class="test-avatar">FM</div>
+                        <div>
+                            <span class="test-name" data-lang="en">Investment Director</span>
+                            <span class="test-name" data-lang="cn">私募投资总监</span>
+                            <span class="test-role">Fund Manager</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing">
+        <div class="wrap">
+            <span class="label" data-lang="en">Pricing</span>
+            <span class="label" data-lang="cn">透明定价，灵活方案</span>
+            <h2 data-lang="en">Tailored Tiers</h2>
+            <h2 data-lang="cn">三档方案，按需选择</h2>
+
+            <div class="price-grid">
+                <div class="price-card">
+                    <div class="price-header">
+                        <div class="price-left">
+                            <h3 data-lang="en">Basic Setup & Walkthrough</h3>
+                            <h3 data-lang="cn">轻量入门 · 基础部署</h3>
+                            <p class="pdesc" data-lang="en">Includes client installation and a 1-hour 1v1 online/offline
+                                setup session. Requires you to provide your own device, network connection, and active
+                                tokens (API fees not included).</p>
+                            <p class="pdesc" data-lang="cn">包含客户端安装与约 1 小时
+                                1V1（在线或面谈）操作指导。注：需在网络通畅的环境下进行，客户需自备设备，此方案不包含设备费、网络费及 token 算力订阅费用。</p>
+                        </div>
+                        <div class="price-amt"><span class="yen">¥</span>1,999</div>
+                    </div>
+                </div>
+
+                <div class="price-card">
+                    <div class="price-header">
+                        <div class="price-left">
+                            <h3 data-lang="en">Hardware & Initial Skills</h3>
+                            <h3 data-lang="cn">标准方案 · 即插即用</h3>
+                            <p class="pdesc" data-lang="en">Provides a pre-configured Apple Mac Mini (M4, 16GB+256GB).
+                                Ready out of the box. Includes the first month of network and token subscription fees
+                                (subsequent API fees billed at cost).</p>
+                            <p class="pdesc" data-lang="cn">提供一台一键预装的独立设备（Apple Mac Mini M4芯片，16+256G版），开箱即用。包含首个月的网络费及
+                                token 算力订阅费用（后续按大模型厂商成本结付，不收差价）。</p>
+                        </div>
+                        <div class="price-amt"><span class="yen">¥</span>10,000<span class="suffix"
+                                data-lang="cn">左右</span></div>
+                    </div>
+                </div>
+
+                <div class="price-card">
+                    <div class="price-header">
+                        <div class="price-left">
+                            <h3 data-lang="en">Enterprise White-Glove</h3>
+                            <h3 data-lang="cn">企业全案 · 深度赋能</h3>
+                            <p class="pdesc" data-lang="en">Turnkey solution including hardware, full workflow audit,
+                                bespoke development, on-site training, and continuous proactive support.</p>
+                            <p class="pdesc" data-lang="cn">提供独立底层设备，覆盖全场景业务调研、专属工作流开发、全员培训，实现一站式交付与持续长期的全生命周期陪跑赋能。</p>
+                        </div>
+                        <div class="price-amt"><span class="yen">¥</span>68,888<span class="suffix"
+                                data-lang="cn">起</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHY CHOOSE US -->
+    <section id="why-us">
+        <div class="wrap">
+            <span class="label" data-lang="en">The Socrates Edge</span>
+            <span class="label" data-lang="cn">核心竞争力</span>
+            <h2 data-lang="en">Why Socrates IV</h2>
+            <h2 data-lang="cn">为什么选择苏格拉底四号门徒</h2>
+
+            <div class="grid2">
+                <div class="card">
+                    <i data-lucide="brain" class="card-icon"></i>
+                    <h3 data-lang="en">Consulting-Driven, Like Socrates</h3>
+                    <h3 data-lang="cn">咨询先行，像苏格拉底一样思考</h3>
+                    <p data-lang="en">We don't rush to code. We spend time understanding your business first. The right
+                        question matters more than the right answer.</p>
+                    <p data-lang="cn">我们不急于动手，而是先花时间深度理解您的业务。提出正确的问题，比给出正确的答案更重要。</p>
+                </div>
+                <div class="card">
+                    <i data-lucide="target" class="card-icon"></i>
+                    <h3 data-lang="en">Deep Customization, No Templates</h3>
+                    <h3 data-lang="cn">深度定制，拒绝模板化交付</h3>
+                    <p data-lang="en">Every business has unique workflows. We build bespoke solutions, not cookie-cutter
+                        templates.</p>
+                    <p data-lang="cn">每个企业的业务流程独一无二，AI 的切入点也截然不同。我们为您量身定制，绝不是套用通用模板。</p>
+                </div>
+                <div class="card">
+                    <i data-lucide="lock" class="card-icon"></i>
+                    <h3 data-lang="en">Security-First, Data Stays Yours</h3>
+                    <h3 data-lang="cn">安全第一，数据绝不出企业</h3>
+                    <p data-lang="en">Private deployment + Docker sandbox + firewall hardening. Your data stays on your
+                        own servers, period.</p>
+                    <p data-lang="cn">私有化部署 + Docker 沙箱 + 防火墙加固。您的数据始终运行在您自己的服务器上，不经过任何第三方。</p>
+                </div>
+                <div class="card">
+                    <i data-lucide="bar-chart-2" class="card-icon"></i>
+                    <h3 data-lang="en">Continuous ROI Partnership</h3>
+                    <h3 data-lang="cn">持续陪跑，保障长期 ROI</h3>
+                    <p data-lang="en">We don't deliver and leave. Ongoing optimization, skill iteration, and team
+                        training ensure AI truly integrates into your business.</p>
+                    <p data-lang="cn">不是交付就走。持续优化、技能迭代、团队培训——确保 AI 真正成为您业务不可或缺的一部分。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+        <div class="wrap">
+            <span class="label" data-lang="en">FAQ</span>
+            <span class="label" data-lang="cn">常见问题</span>
+            <h2 data-lang="en">Common Questions</h2>
+            <h2 data-lang="cn">您可能想知道的</h2>
+
+            <details>
+                <summary>
+                    <span data-lang="en">What is OpenClaw? How is it different from ChatGPT?</span>
+                    <span data-lang="cn">OpenClaw 是什么？和 ChatGPT 有什么区别？</span>
+                </summary>
+                <div class="ans">
+                    <p data-lang="en">OpenClaw is an open-source AI Agent runtime platform. If ChatGPT is a "mouth" (can
+                        only chat), OpenClaw gives AI a pair of "hands" and "eyes" — it reads emails, manages calendars,
+                        browses the web, executes commands, and works proactively 24/7. All data stays on your own
+                        server.</p>
+                    <p data-lang="cn">OpenClaw 是一个开源的 AI Agent 运行平台。如果说 ChatGPT 是一个「嘴」（只能聊天），OpenClaw 就是给 AI
+                        大脑配了一双「手」和一双「眼睛」——它能读邮件、管日历、上网搜索、操作浏览器、执行命令，24 小时不间断主动为你工作。所有数据都在你自己的服务器上，完全私有。</p>
+                </div>
+            </details>
+            <details>
+                <summary>
+                    <span data-lang="en">Is my enterprise data safe?</span>
+                    <span data-lang="cn">我的企业数据安全吗？</span>
+                </summary>
+                <div class="ans">
+                    <p data-lang="en">Absolutely. We use private deployment with Docker sandbox isolation, Composio
+                        OAuth middleware, and multi-layer firewall hardening. Your data never leaves your own
+                        infrastructure.</p>
+                    <p data-lang="cn">绝对安全。我们采用私有化部署方案，所有数据都在你自己的服务器或设备上。配合 Docker 沙箱隔离、Composio OAuth
+                        中间件、防火墙加固等多层安全措施，确保数据不出企业。</p>
+                </div>
+            </details>
+            <details>
+                <summary>
+                    <span data-lang="en">Can I get a refund if not satisfied?</span>
+                    <span data-lang="cn">不满意可以退款吗？</span>
+                </summary>
+                <div class="ans">
+                    <p data-lang="en">Yes. Basic and Standard tiers offer a 7-day unconditional refund. For Enterprise
+                        tier, if you're unsatisfied during the diagnosis phase, the diagnosis fee is fully refundable.
+                    </p>
+                    <p data-lang="cn">可以。轻量入门和标准方案提供 7 天无条件退款保障。企业深度定制方案在诊断阶段如不满意，诊断费用全额退还。</p>
+                </div>
+            </details>
+            <details>
+                <summary>
+                    <span data-lang="en">How long before I see results?</span>
+                    <span data-lang="cn">需要多长时间才能看到效果？</span>
+                </summary>
+                <div class="ans">
+                    <p data-lang="en">Basic tier goes live same day. Standard tier typically 3-5 business days.
+                        Enterprise tier depends on complexity — usually 2-4 weeks for Phase 1, with visible efficiency
+                        gains immediately.</p>
+                    <p data-lang="cn">轻量入门当天即可上线使用。标准方案通常 3-5 个工作日完成部署和培训。企业深度定制视复杂度而定，一般 2-4 周完成第一阶段落地，即可看到明显效率提升。</p>
+                </div>
+            </details>
+            <details>
+                <summary>
+                    <span data-lang="en">Can I try before committing?</span>
+                    <span data-lang="cn">可以先试用再决定吗？</span>
+                </summary>
+                <div class="ans">
+                    <p data-lang="en">Of course. We offer a free 30-minute consultation to assess AI Agent applicability
+                        in your business. Make an informed decision after fully understanding the solution.</p>
+                    <p data-lang="cn">当然。我们提供 30 分钟的免费咨询，帮你评估 AI Agent 在你业务中的适用性。你可以充分了解方案后再做决定。</p>
+                </div>
+            </details>
+            <details>
+                <summary>
+                    <span data-lang="en">What's the 7-Day Learning Path?</span>
+                    <span data-lang="cn">7 天学习路径是什么？</span>
+                </summary>
+                <div class="ans">
+                    <p data-lang="en">It's our systematic guide based on the OpenClaw 101 open-source project. From Day
+                        1 (meeting your AI assistant) to Day 7 (advanced), one topic per day. Perfect for self-learners
+                        before deciding on consulting.</p>
+                    <p data-lang="cn">这是我们基于 OpenClaw 101 开源项目整理的系统化学习指南。从 Day 1 认识 AI 助手，到 Day 7 进阶玩法，每天一个主题，帮你从零掌握 AI
+                        Agent 的部署和使用。适合想先自学再决定是否需要咨询服务的客户。</p>
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <!-- CONTACT CTA -->
+    <section id="contact">
+        <div class="wrap" style="text-align: center;">
+            <h2 data-lang="en" style="font-size:32px; margin-bottom:12px;">Start Your AI Transition</h2>
+            <h2 data-lang="cn" style="font-size:24px; margin-bottom:16px;">开启您的企业级 AI 转型之旅</h2>
+            <p class="sub" data-lang="en" style="margin-bottom:48px;">Schedule a 30-minute free consultation to assess
+                OpenClaw feasibility.</p>
+            <p class="sub" data-lang="cn" style="margin-bottom:48px;">预约 30 分钟免费诊断，让我们为您评估 AI Agent 如何精准赋能您的原生业务。</p>
+
+            <div class="contact-card">
+                <div class="contact-avatar"><i data-lucide="message-circle" style="width:32px; height:32px;"></i></div>
+                <div class="contact-info" style="text-align:left;">
+                    <div class="cn" data-lang="en">Add WeChat: <span
+                            style="font-family:var(--font-en); font-weight:600;">18752273520</span></div>
+                    <div class="cn" data-lang="cn">官方顾问微信或电话：<span
+                            style="font-family:var(--font-en); font-weight:600;">18752273520</span></div>
+                    <div class="cd" data-lang="en">We provide nationwide remote deployment and local setup for select
+                        regions.</div>
+                    <div class="cd" data-lang="cn">支持全国范围远程规划与部署，长三角核心区域可安排面谈与驻场交付（需提前预约）。</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="wrap">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <div class="mark"></div> SOCRATES IV
+                    </div>
+                    <p class="footer-desc" data-lang="en">White-Glove AI Agent Deployment. <br>We think deeply to find
+                        the right AI deployment for your enterprise.</p>
+                    <p class="footer-desc" data-lang="cn">像苏格拉底一样深度思考，为您的企业找到正确的 AI 落地方式。<br>企业级咨询 / 定制化技能 / 实施与赋能。</p>
+                </div>
+                <div class="footer-col">
+                    <h4 data-lang="en">Services</h4>
+                    <h4 data-lang="cn">核心服务</h4>
+                    <a href="#services" data-lang="en">Business Consulting</a>
+                    <a href="#services" data-lang="cn">业务场景咨询</a>
+                    <a href="#services" data-lang="en">Custom Agent Workflows</a>
+                    <a href="#services" data-lang="cn">Agent 工作流定制</a>
+                    <a href="#services" data-lang="en">Security Hardening</a>
+                    <a href="#services" data-lang="cn">企业级安全加固</a>
+                </div>
+                <div class="footer-col">
+                    <h4 data-lang="en">Resources</h4>
+                    <h4 data-lang="cn">资源与相关</h4>
+                    <a href="#pricing" data-lang="en">Pricing Plans</a>
+                    <a href="#pricing" data-lang="cn">定价方案</a>
+                    <a href="#" data-lang="en">OpenClaw 101</a>
+                    <a href="#" data-lang="cn">OpenClaw 101</a>
+                    <a href="#" data-lang="en">Documentation</a>
+                    <a href="#" data-lang="cn">项目文档中心</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 SOCRATES IV. All rights reserved.</span>
+                <div class="footer-domains">
+                    <a href="https://socratesiv.com">socratesiv.com</a>
+                    <a href="https://aiguoke.com">aiguoke.com</a>
+                    <a href="https://openclaws360.com">openclaws360.com</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Resource tab switching
+        window.showResTab = function (tab, el) {
+            document.getElementById('res-cn').style.display = tab === 'cn' ? 'grid' : 'none';
+            document.getElementById('res-en').style.display = tab === 'en' ? 'grid' : 'none';
+            // Reset button styles
+            el.parentElement.querySelectorAll('button').forEach(function (btn) {
+                btn.style.color = 'var(--text3)';
+                btn.style.borderBottomColor = 'transparent';
+            });
+            el.style.color = 'var(--text)';
+            el.style.borderBottomColor = 'var(--text)';
+        };
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+            a.addEventListener('click', function (e) {
+                e.preventDefault();
+                var target = document.querySelector(a.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // Language Switch Logic
+        function setLang(lang) {
+            document.body.className = 'lang-' + lang;
+            document.getElementById('btn-cn').classList.remove('active');
+            document.getElementById('btn-en').classList.remove('active');
+            document.getElementById('btn-' + lang).classList.add('active');
+            // Sync resource tabs with language
+            var resCn = document.getElementById('res-cn');
+            var resEn = document.getElementById('res-en');
+            if (resCn && resEn) {
+                resCn.style.display = lang === 'cn' ? 'grid' : 'none';
+                resEn.style.display = lang === 'en' ? 'grid' : 'none';
+                var tabs = document.querySelectorAll('.res-tab, [onclick*="showResTab"]');
+                tabs.forEach(function (btn) {
+                    btn.style.color = 'var(--text3)';
+                    btn.style.borderBottomColor = 'transparent';
+                });
+            }
+        }
+
+        // Auto-detect based on browser language on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const userLang = navigator.language || navigator.userLanguage;
+            if (userLang.toLowerCase().includes('zh')) {
+                setLang('cn');
+            } else {
+                setLang('en');
+            }
+        });
+    </script>
+</body>
+
+</html>
